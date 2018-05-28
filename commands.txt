@@ -1,0 +1,5 @@
+Comandos:
+
+Hi - El bot saluda
+Help - Ver Comandos
+Roll - Lanza dados
