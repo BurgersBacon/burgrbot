@@ -14,7 +14,7 @@ admin.initializeApp({
 // var database = firebase.database();
 var db = admin.firestore();
 
-var dinosaruios = db.collection('dinosaurios');
+var users = db.collection('users');
 //
 // dinosaruios.doc('terodac').set(
 //   {
@@ -39,12 +39,21 @@ var dinosaruios = db.collection('dinosaurios');
 //       console.log('Error getting document', err);
 //     });
 
-var dinosauriosQueSeComenOtrosDinos = dinosaruios.where('come', '==', 'otros dinos');
-console.log("data: ", dinosauriosQueSeComenOtrosDinos);
+var dinosauriosQueSeComenOtrosDinos = users.where('name', '==', 'jason').get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            console.log(doc.id, " => ", doc.data());
+        });
+    })
+    .catch(function(error) {
+        console.log("Error getting documents: ", error);
+    });
 
 bot.on('ready', () => {
   console.log("-----------------------------------------------------");
   bot.user.setActivity(`${cfg.prefix} help`);
+
+  console.log("lmaooo", bot.user.bot);
 });
 
 bot.on('message', msg => {
