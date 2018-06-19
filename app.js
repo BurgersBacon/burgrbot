@@ -2,7 +2,45 @@ const { Client } = require('discord.js');
 const bot = new Client();
 const cfg = require('./config.json');
 const fs = require('fs');
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
+const firebaseDb = require('./firebase-db.json');
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: firebaseDb.databaseURL
+});
+
+// var database = firebase.database();
+var db = admin.firestore();
+
+var dinosaruios = db.collection('dinosaurios');
+//
+// dinosaruios.doc('terodac').set(
+//   {
+//     name: 'San Francisco',
+//     state: 'CA',
+//     country: 'USA',
+//     capital: false,
+//     population: 860000
+//   }
+// );
+
+//
+// db.collection('dinosaurios').doc('trex').get()
+//     .then(doc => {
+//       if (!doc.exists) {
+//         console.log('No such document!');
+//       }else{
+//         console.log('Document data:', doc.data());
+//       }
+//     })
+//     .catch(err => {
+//       console.log('Error getting document', err);
+//     });
+
+var dinosauriosQueSeComenOtrosDinos = dinosaruios.where('come', '==', 'otros dinos');
+console.log("data: ", dinosauriosQueSeComenOtrosDinos);
 
 bot.on('ready', () => {
   console.log("-----------------------------------------------------");
