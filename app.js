@@ -1,6 +1,5 @@
 // Discord dependencies
 const Discord = require('discord.js');
-const newUsers = new Discord.Collection();
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
@@ -27,6 +26,48 @@ admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	databaseURL: firebaseDb.databaseURL,
 });
+
+// When the bot starts
+client.on('ready', () => {
+	console.log('-----------------------------------------------------');
+	client.user.setActivity(`${prefix} help`);
+	console.log(prefix);
+});
+
+// Every time a user sends a message
+client.on('message', msg => {
+	// asks if who wrote the message is a bot
+  if (msg.author.bot) return;
+
+	// if the message is a command
+  if (msg.content.startsWith(prefix)) {
+    const args = msg.content.slice(prefix.length + 1).split(' ');
+    const commandName = args.shift().toLowerCase();
+
+		if (client.commands.has(commandName)) {
+			const command = client.commands.get(commandName);
+			try {
+				command.execute(msg, args, prefix);
+			}
+			catch (error) {
+				console.error(error);
+			}
+		}
+		else {
+			msg.channel.send('emhhh ese comando no existe xd, para ver la lista de comandos usa "burgr help"');
+		}
+	}
+	else if (msg.content.includes('bot') || msg.content.includes('burgrbot')) {
+		msg.react('446395864072585229');
+	}
+	else {
+		return;
+	}
+
+});
+
+client.login(token);
+
 
 // var database = firebase.database();
 // var db = admin.firestore();
@@ -65,86 +106,3 @@ admin.initializeApp({
 //     .catch(function(error) {
 //         console.log('Error getting documents: ', error);
 //     });
-
-client.on('ready', () => {
-	console.log('-----------------------------------------------------');
-	client.user.setActivity(`${prefix} help`);
-
-	console.log('lmaooo', client.user.bot);
-});
-
-client.on('guildMemberAdd', (member) => {
-	const guild = member.guild;
-	newUsers.set(member.id, member.user);
-	if (newUsers.size > 10) {
-		const defaultChannel = guild.channels.find(c=> c.permissionsFor(guild.me).has('SEND_MESSAGES'));
-		const userlist = newUsers.map(u => u.toString()).join(' ');
-		defaultChannel.send('Bienvenido' + userlist);
-		newUsers.clear();
-	}
-});
-
-client.on('guildMemberRemove', (member) => {
-	if(newUsers.has(member.id)) newUsers.delete(member.id);
-});
-
-client.on('message', msg => {
-  if (msg.author.bot) return;
-  if (msg.content.includes('bot')) {
-      msg.react('446395864072585229');
-  }
-  if (msg.content.startsWith(prefix)) {
-    const args = msg.content.slice(prefix.length + 1).split(' ');
-    const command = args.shift().toLowerCase();
-
-    if (command === 'hi') {
-      msg.reply('que dices, bro');
-    }
-    else if (command === 'photo') {
-      msg.reply(msg.author.avatarURL);
-    }
-    else if (command === 'roll') {
-      client.commands.get('roll').execute(msg, args);
-    }
-    else if (command === 'sup') {
-      msg.channel.send(`Bro, ${msg.author} te envié un mensaje directo.`);
-      msg.author.send('hello');
-    }
-    else if (command === 'lol') {
-      msg.react('446395907823501314');
-    }
-    else if(command === 'listemojis') {
-      const emojiList = msg.guild.emojis.map((e, x) => (x + ' = ' + e) + ' | ' + e.name).join('\n');
-      msg.channel.send(emojiList);
-    }
-		else if (command === 'server') {
-			console.log(msg.guild);
-			msg.channel.send(`Server name: ${msg.guild.name}\nTotal members: ${msg.guild.memberCount}`);
-		}
-    else if (command === 'help') {
-      msg.channel.send({
-        'embed': {
-          'title': 'Lista de comandos',
-          'description': '`help`, `hi`, `roll`, `drogas`, `poll`',
-          'color': 16098851,
-          'footer': {
-            'icon_url': 'https://burgersbacon.github.io/portfolio/buurgrbit.png',
-            'text': `recuerda usar '${prefix}' antes de cada comando.`,
-          },
-          'thumbnail': {
-						'url': 'https://burgersbacon.github.io/portfolio/assets/images/contact.png',
-					},
-				},
-			});
-		}
-		else{
-			msg.channel.send('emhh ese comando no existe xd, para ver la lista de comandos usa ".burgr help"');
-		}
-	}
-	else{
-		return;
-	}
-
-});
-
-client.login(token);

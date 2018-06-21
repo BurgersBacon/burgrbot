@@ -1,6 +1,8 @@
 module.exports = {
     name: 'roll',
     description: 'Rolls a dice',
+    emoji: '🎲',
+    sintax: '`burgr roll` o `burgr roll <numero máximo>`',
     execute(msg, args) {
       let max;
       args.length > 0 ? max = args[0] : max = 100;
